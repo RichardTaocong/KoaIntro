@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="<%=HTTP_ROOT%>/css/bootstrap.css">
+    <link rel="apple-touch-icon-precomposed" href="<%= HTTP_ROOT %>/images/icon.png">
+    <link rel="shortcut icon" href="<%= HTTP_ROOT %>/images/favicon.png">
+    <style media="screen">
+        .my-panel {
+            width: 80%;
+            position: absolute;
+            z-index: 100;
+            left: 50%;
+            top: 100px;
+            margin-left: -40%;
+            display: none;
+        }
+
+        .my-panel-shadow {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #000;
+            opacity: 0.6;
+            z-index: 99;
+            display: none;
+        }
+
+        .my-dialog {
+            width: 300px;
+            position: absolute;
+            z-index: 100;
+            left: 50%;
+            top: 200px;
+            margin-left: -150px;
+            display: none;
+        }
+
+        .my-dialog-shadow {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #000;
+            opacity: 0.3;
+            z-index: 99;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <ul class="nav nav-tabs nav-justified" id="my-tabs">
+        <% for(let type in page_types){ %>
+        <li role="presentation" <% if(type==page_type){ %> class="active" <% } %>>
+            <a href="<%= HTTP_ROOT %>/admin/<%= type %>"><%= page_types[type] %></a>
+        </li>
+        <% } %>
+        <!-- <li role="presentation"><a href="/admin/catalog">Catalog管理</a></li>
+            <li role="presentation"><a href="/admin/article">Article管理</a></li> -->
+    </ul>
+
+    <a href="javascript:;" class="btn btn-primary glyphicon glyphicon-plus" id="btnAdd">添加</a>
+
+    <table class="table table-striped" id="my-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+
+                <% fields.forEach(field=>{ %>
+                <% if(field.type != 'textarea'){ %>
+                <th><%= field.title %></th>
+                <% } %>
+                <% }) %>
+
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% datas.forEach(data=>{ %>
+            <tr id="myTr">
+                <td><%= data.ID %></td>
+
+                <% fields.forEach(field=>{ %>
+                <% if(field.type != 'textarea'){ %>
+                <td><%= data[field.name] %></td>
+                <% } %>
+                <% }) %>
+
+                <td>
+                    <a href="<%= HTTP_ROOT %>/admin/<%= page_type %>/delete/<%= data.ID %>"
+                        class="btn btn-danger glyphicon glyphicon-trash" onclick="return confirm('是否确定删除该条数据？')">
+                        <strong>删除</strong>
+                    </a>
+                    <a href="javascript:;" data-id="<%= data.ID %>" class="btn btn-default glyphicon glyphicon-pencil"
+                        id="modifyBtn">
+                        <strong>修改</strong>
+                    </a>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+
+    <!-- 添加项目 -->
+    <div class="my-panel-shadow"></div>
+    <div class="panel panel-default my-panel">
+        <div class="panel-heading">
+            <div class="panel-title">
+                添加
+            </div>
+        </div>
+
+        <div class="panel-body">
+
+            <form action="<%= HTTP_ROOT %>/admin/<%= page_type %>" method="POST" class="form form-horizontal"
+                role="form" enctype="multipart/form-data">
+
+                <% fields.forEach(field=>{ %>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">
+                        <%= field.title %>
+                    </label>
+                    <div class="col-sm-6">
+
+                        <% if(field.type == 'textarea'){ %>
+                        <textarea name="<%= field.name %>" class="form-control" rows="20"
+                            placeholder="请输入<%= field.title %>"></textarea>
+
+                        <% }else if(field.type == 'select'){ %>
+                        <select class="form-control" name="<%= field.name %>">
+                            <% field.items.forEach(item=>{ %>
+                            <option value="<%= item.ID %>"><%= item.title %></option>
+                            <% }) %>
+                        </select>
+
+                        <% }else{ %>
+                        <input type="<%= field.type %>" class="form-control" name="<%= field.name %>"
+                            placeholder="请输入<%= field.title %>">
+                        <% } %>
+                    </div>
+                </div>
+                <% }) %>
+
+                <div class="form-group">
+                    <div class="col-sm-2 col-sm-offset-2">
+                        <button type="submit" class="btn-primary form-control">提交</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="my-dialog-shadow"></div>
+    <div class="panel panel-default my-dialog">
+        <div class="panel-heading">
+            <div class="panel-title">
+                标题
+            </div>
+        </div>
+
+        <div class="panel-body">
+            内容
+        </div>
+
+        <div class="panel-footer">
+            <div class="btn-group">
+
+                <button type="button" class="btn btn-default">button1</button>
+                <button type="button" class="btn btn-default">button2</button>
+
+            </div>
+        </div>
+    </div>
+</body>
+<script src="<%= HTTP_ROOT %>/js/jquery-3.4.1.js" charset="utf-8"></script>
+<script src="<%= HTTP_ROOT %>/js/bootstrap.min.js" charset="utf-8"></script>
+<script>
+    $('#btnAdd').on('click', function () {
+        $('.my-panel,.my-panel-shadow').show();
+    });
+
+    // $('#my-tabs li').on('click',function(err){
+    //     err.preventDefault();
+    //     $(this).tab('show');
+    // });
+</script>
+
+<script>
+    const HTTP_ROOT = '<%= HTTP_ROOT %>';
+    const page_type = '<%= page_type %>'
+
+    //一定要注意：对于js动态添加的元素，需要以下面的方式来进行动态绑定——重点是
+    //找到页面中一直存在的父元素，终极方案是body
+    $('#my-table').on('click', '#modifyBtn', async function () {
+        let id = this.dataset.id;
+        let url = `${HTTP_ROOT}/admin/${page_type}/get/${id}`;
+
+        let res = await $.ajax({
+            url,
+            dataType: 'json'
+        });
+
+        if (res.err) {
+            alert(res.msg);
+        } else {
+            let oldData = res.data;
+            $('.my-panel,.my-panel-shadow').show();
+
+            //由于和新增共享一个模态框，因此需要在前台改动一下文字
+            $('.my-panel .panel-title').html('修改');
+            $('.my-panel form').attr(
+                'action',
+                `${HTTP_ROOT}/admin/${page_type}/modify/${id}`
+            );
+
+            // console.log(oldData);
+
+            //该函数用于处理月份以及日期前需要添0的情况，否则与标准日期不符合
+            function toDou(n) {
+                return n < 10 ? `0${n}` : '' + n;
+            }
+
+            //修改时能够在原有值的基础上进行
+            $('.my-panel input,.my-panel textarea,.my-panel select').each(function () {
+
+                //为了处理值为0的情况，需要用下面的条件
+                if (oldData[this.name] !== undefined) {
+                    try {
+                        if (this.type == 'date') {
+                            //对于日期，由于数据库中存储的是时间戳，在这里需要还原
+                            let oDate = new Date(oldData[this.name] * 1000);
+
+                            //并且注意在前台显示为2011/11/12，而后台要写作2011-11-12
+
+                            this.value =
+                                `${oDate.getFullYear()}-${toDou(oDate.getMonth()+1)}-${toDou(oDate.getDate())}`;
+                            // alert(this.value);
+                        } else {
+                            //对于其他类型统一处理
+                            this.value = oldData[this.name];
+                        }
+                    } catch (error) {}
+
+                    // this.value = oldData[this.name];
+                }
+            });
+        }
+    });
+</script>
+
+</html>
